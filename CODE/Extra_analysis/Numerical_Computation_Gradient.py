@@ -11,8 +11,9 @@ outputs=np.linspace(-38,38,steps)
 
 labels=torch.tensor(1.,dtype=torch.float64) # GT label, 0.0 for background gradient
 y=Sigmoid(torch.tensor(outputs,dtype=torch.float64))
-Stable_loss=False
-epsilon=1e-3
+Stable_loss=False  # switch to True is you want to use the stabilized loss
+epsilon= 1e-3
+
 for i in range(steps):
     y_t=torch.tensor(outputs[i]*1.0,requires_grad=True)
     if Stable_loss==False:
