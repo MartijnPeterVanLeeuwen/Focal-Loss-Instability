@@ -12,6 +12,14 @@ from torchvision.io import decode_image
 from torch.utils.data import Dataset, DataLoader
 from PIL import Image
 import numpy as np
+import sys
+current_dir = os.path.dirname(__file__)
+parent_dir = os.path.abspath(os.path.join(current_dir, "..", ".."))
+sys.path.append(parent_dir)
+
+from Stabilized_Focal_loss import sigmoid_focal_loss_modified
+from Models.CNN import *
+
 from Revised_Focal_loss import *
 from Simple_CNN import *
 
@@ -40,7 +48,7 @@ class CustomImageDataset(Dataset):
         return image, label
 
 
-# Parameters
+
 train_dir = ''
 result_dir=''
 
@@ -50,32 +58,32 @@ if os.path.isdir(result_dir)==False:
 batch_size = 128
 num_workers = 8
 num_epochs = 1000
+Device='cpu' #change to cuda:0 and select gpu
 
-device = torch.device("cuda:3")
-model=Net(channels=3,output_classes=10).to(device)
-
+device = torch.device(Device)
 # Transforms (ViT expects 224x224 input)
 train_transforms = transforms.Compose([
     transforms.ToTensor(),
     transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5)),
 ])
 
-
 # Data Loaders
 train_dataset=CustomImageDataset(train_dir, transform=train_transforms)
-
 train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers, pin_memory=True)
 
-# Create ViT model
-#model = create_model('vit_base_patch16_224', pretrained=False, num_classes=1)
-model.to(device)
+Model_type='CNN'
+if Model_type=="CNN":
+    model=CNN(1,32,no_classes=1).to(device)
+else:
+   model = create_model('vit_base_patch16_224', pretrained=False, num_classes=1).to(device)
+
 
 # Loss, Optimizer, Scheduler
 optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
 
 losses=np.ones(num_epochs)*-1.
 accuracy=np.ones(num_epochs)*-1
-Lf='Original'
+Loss_function='Original'
 
 print('start training')
 # Training Loop
@@ -92,10 +100,10 @@ for epoch in range(num_epochs):
         optimizer.zero_grad()
         outputs = model(inputs)
 
-        if Lf=="Original":
+        if Loss_function=="Original":
             loss = torchvision.ops.sigmoid_focal_loss(outputs, labels,alpha=0.5,gamma=0.5,reduction = 'mean')
         else:
-            loss = sigmoid_focal_loss_revised(outputs, labels,alpha=0.5,gamma=0.5,reduction = 'mean',epsilon_scalar=1e-3)
+            loss = sigmoid_focal_loss_modified(outputs, labels,alpha=0.5,gamma=0.5,reduction = 'mean',epsilon_scalar=1e-3)
 
         loss.backward()
         optimizer.step()
