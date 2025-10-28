@@ -11,10 +11,11 @@ import random
 import matplotlib.pyplot as plt
 
 from Revised_Focal_loss import sigmoid_focal_loss_revised
-mnist_trainset=datasets.MNIST(root='/home/mleeuwen/DATA/MNIST/train',
+
+Path_to_MNIST_train='/home/mleeuwen/DATA/MNIST/train'
+
+mnist_trainset=datasets.MNIST(root=Path_to_MNIST_train,
                 train=True,download=False,transform=torchvision.transforms.ToTensor())
-mnist_testset=datasets.MNIST(root='/home/mleeuwen/DATA/MNIST/test',
-                train=False,download=False,transform=torchvision.transforms.ToTensor())
 
 device = torch.device("cuda:2")
 easy=False
@@ -31,17 +32,14 @@ THs=[0,1,2,3,4,5,6,7,8]
 columns = ['Gamma', 'TH']+[str(i) for i in range(0,epochs)]
 
 noise_amplitudes=[0,0.5,0.75]
-noise_amplitudes=[0.5]
 
 Loss_functions=['Adapted','Original']
-Loss_functions=['Adapted']
 
 Sigmoid=torch.nn.Sigmoid()
 
 for Lf in Loss_functions:
 
     Path_to_experiments='/home/mleeuwen/Model_results/Focal_loss_Experiment_final/Focal_loss_%s'%Lf
-    Path_to_experiments='/home/mleeuwen/Model_results/test'
 
     if os.path.isdir(Path_to_experiments)==False:
         os.makedirs(Path_to_experiments)
@@ -76,7 +74,7 @@ for Lf in Loss_functions:
                     dataiter = iter(trainloader)
                     images, labels = next(dataiter)
 
-                    net=Net().to(device)
+                    net=Net(1,28,no_classes=1).to(device)
                     optimizer = optim.SGD(net.parameters(), lr=lr, momentum=0.9)
                     Train_loss=np.ones((1,epochs))*-1
 
@@ -118,7 +116,7 @@ for Lf in Loss_functions:
 
                             loss.backward()
                             optimizer.step()
-                            # print statistics
+
                             running_loss += loss.item()
 
                             outputs=Sigmoid(outputs)
@@ -142,11 +140,9 @@ for Lf in Loss_functions:
 
                     print('Finished Training')
 
-                    #df = pd.DataFrame (All_training_losses)
                     df_epoch.iloc[Experiment_nr,:]=df_epoch.iloc[Experiment_nr,:].replace(-1,'inf')
                     df_ac.iloc[Experiment_nr,:]=df_ac.iloc[Experiment_nr,:].replace(-1,'inf')
 
-                    #df = df.fillna(value=np.nan)
                     df_epoch.columns=columns
                     df_ac.columns=columns
 
