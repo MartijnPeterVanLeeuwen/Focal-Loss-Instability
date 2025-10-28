@@ -1,7 +1,6 @@
 import torch
 import torchvision
 import torchvision.datasets as datasets
-from Simple_CNN import Net
 import torch.optim as optim
 import numpy as np
 import pandas as pd
@@ -9,16 +8,22 @@ from tqdm import tqdm
 import os
 import random
 import matplotlib.pyplot as plt
+import sys
+current_dir = os.path.dirname(__file__)
+parent_dir = os.path.abspath(os.path.join(current_dir, "..", ".."))
+sys.path.append(parent_dir)
 
-from Revised_Focal_loss import sigmoid_focal_loss_revised
+from Stabilized_Focal_loss import sigmoid_focal_loss_modified
+from Models.CNN import *
 
-Path_to_MNIST_train='/home/mleeuwen/DATA/MNIST/train'
+Path_to_MNIST_train='/DATA/MNIST/train'
+Path_to_MNIST_train='C://Users//mleeuwen//OneDrive - Tilburg University//Desktop//MNIS//DATA'
+Path_to_Main_results='RESULTS'
+Path_to_Main_results='C://Users//mleeuwen//OneDrive - Tilburg University//Desktop//MNIS//RES'
 
 mnist_trainset=datasets.MNIST(root=Path_to_MNIST_train,
-                train=True,download=False,transform=torchvision.transforms.ToTensor())
+                train=True,download=False,transform=torchvision.transforms.ToTensor())#Set download to True if you want to download the MNIST dataset
 
-device = torch.device("cuda:2")
-easy=False
 epsilon=1e-3
 batch_size=64
 epochs=100
@@ -26,20 +31,20 @@ gamma=0.5
 alpha=0.5
 lr=1e-3
 Add_noise=True
-gamma_values=[0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,0,1,2,3,4,5]
-THs=[0,1,2,3,4,5,6,7,8]
+Device='cpu' #Specify the GPU or CPU
 
 columns = ['Gamma', 'TH']+[str(i) for i in range(0,epochs)]
-
+gamma_values=[0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,0,1,2,3,4,5]
+THs=[0,1,2,3,4,5,6,7,8]
 noise_amplitudes=[0,0.5,0.75]
-
 Loss_functions=['Adapted','Original']
 
 Sigmoid=torch.nn.Sigmoid()
+device = torch.device(Device)
 
 for Lf in Loss_functions:
 
-    Path_to_experiments='/home/mleeuwen/Model_results/Focal_loss_Experiment_final/Focal_loss_%s'%Lf
+    Path_to_experiments=os.path.join(Path_to_Main_results,"Focal_loss_%s"%Lf)
 
     if os.path.isdir(Path_to_experiments)==False:
         os.makedirs(Path_to_experiments)
@@ -70,14 +75,13 @@ for Lf in Loss_functions:
                     All_training_acc[Experiment_nr,1]=THs[TH]
 
                     trainloader = torch.utils.data.DataLoader(mnist_trainset, batch_size=batch_size,
-                                                              shuffle=True, num_workers=2)
+                                                              shuffle=True)
                     dataiter = iter(trainloader)
                     images, labels = next(dataiter)
 
-                    net=Net(1,28,no_classes=1).to(device)
+                    net=CNN(1,28,no_classes=1).to(device)
                     optimizer = optim.SGD(net.parameters(), lr=lr, momentum=0.9)
                     Train_loss=np.ones((1,epochs))*-1
-
                     for epoch in tqdm(range(epochs)):  # loop over the dataset multiple times
                         running_loss = 0.0
                         train_acc=0
@@ -112,7 +116,7 @@ for Lf in Loss_functions:
                             if Lf=="Original":
                                 loss = torchvision.ops.sigmoid_focal_loss(outputs, labels,alpha=alpha,gamma=gamma_values[GAMMA],reduction = 'mean')
                             else:
-                                loss = sigmoid_focal_loss_revised(outputs, labels,alpha=alpha,gamma=gamma_values[GAMMA],reduction = 'mean',epsilon_scalar=epsilon)
+                                loss = sigmoid_focal_loss_modified(outputs, labels,alpha=alpha,gamma=gamma_values[GAMMA],reduction = 'mean',epsilon=epsilon)
 
                             loss.backward()
                             optimizer.step()
@@ -147,9 +151,9 @@ for Lf in Loss_functions:
                     df_ac.columns=columns
 
                     filepath_epochs = os.path.join(result_folder,
-                                    'Experiment_Results_no_noise_new_loss_epoch.xlsx')
+                                    'Experiment_Results_loss.xlsx')
                     filepath_accuracy = os.path.join(result_folder,
-                                    'Experiment_Results_no_noise_new_loss_acc.xlsx')
+                                    'Experiment_Results_acc.xlsx')
 
                     df_epoch.to_excel(filepath_epochs, index=False)
                     df_ac.to_excel(filepath_accuracy, index=False)

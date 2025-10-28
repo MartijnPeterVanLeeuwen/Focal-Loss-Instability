@@ -41,10 +41,10 @@ def sigmoid_focal_loss_modified(
                 Default: ``'none'``.
     Returns:
         Loss tensor with the reduction option applied.
-    """
-    #Modification of the Original implementation from 
+    
+    Modification of the Original implementation from 
     https://github.com/facebookresearch/fvcore/blob/master/fvcore/nn/focal_loss.py
-
+    """
     if not torch.jit.is_scripting() and not torch.jit.is_tracing():
         _log_api_usage_once(sigmoid_focal_loss_modified)  #Modification 
     p = torch.sigmoid(inputs)
@@ -66,7 +66,6 @@ def sigmoid_focal_loss_modified(
         loss = loss.sum()
     else:
         raise ValueError(
-            f"Invalid Value for arg 'reduction': '{reduction} \n 
-            Supported reduction modes: 'none', 'mean', 'sum'"
+            f"Invalid Value for arg 'reduction': '{reduction} \n Supported reduction modes: 'none', 'mean', 'sum'"
         )
     return loss
