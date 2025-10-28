@@ -1,49 +1,50 @@
-from Revised_Focal_loss import sigmoid_focal_loss_revised
-from unet import UNet
 import torch
 import torch.optim as optim
 import torchvision
 import torchvision.datasets as datasets
 import copy
 import os
-from Data_loader_upscale_mnist import DriveDataset
 from torch.utils.data import DataLoader
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-Sigmoid=torch.nn.Sigmoid()
+import sys
+from tqdm import tqdm
+current_dir = os.path.dirname(__file__)
+parent_dir = os.path.abspath(os.path.join(current_dir, "..", ".."))
+sys.path.append(parent_dir)
+from Models.Unet import UNet
+from Stabilized_Focal_loss import sigmoid_focal_loss_modified
 
-device = torch.device("cuda:1")
+
+Device='cpu'
+device = torch.device(Device)
 Patch_size=28
-path_to_results=""
-if os.path.isdir(path_to_results)==False:
-    os.makedirs(path_to_results)
 
-if Patch_size!=28:
-    transforms = torchvision.transforms.Compose([
-        torchvision.transforms.ToTensor(),
-        torchvision.transforms.Resize((Patch_size,Patch_size)),
-    ])
+Path_to_MNIST_train='/DATA/MNIST/train'
+Path_to_MNIST_train='C://Users//mleeuwen//OneDrive - Tilburg University//Desktop//MNIS//DATA'
+Path_to_Main_results='RESULTS'
+Path_to_Main_results='C://Users//mleeuwen//OneDrive - Tilburg University//Desktop//MNIS//RES'
 
-else:
-    transforms = torchvision.transforms.Compose([
+if os.path.isdir(Path_to_Main_results)==False:
+    os.makedirs(Path_to_Main_results)
+
+transforms = torchvision.transforms.Compose([
     torchvision.transforms.ToTensor(),
     ])
-
-Path_to_MNIST='/home/mleeuwen/DATA/MNIST/train'
-mnist_trainset=datasets.MNIST(root=Path_to_MNIST,train=True,download=False,transform=transforms)
+mnist_trainset=datasets.MNIST(root=Path_to_MNIST_train,train=True,download=False,transform=transforms)
 
 batch_size=64
 epochs=1000
 gamma=0.5
 alpha=0.5
-th=3
-easy=False
+epsilon=1e-3
+Loss_function='Original' # If Loss_function != Original, the modified focal loss will be used.
 
 train_loader = torch.utils.data.DataLoader(mnist_trainset, batch_size=batch_size,
-                                          shuffle=True, num_workers=2)
+                                          shuffle=True)
 Noise_levels=[0,0.5,0.75]
-running_loss=0.0
+
 columns = ['Noise']+[str(i) for i in range(0,epochs)]
 All_training_losses=np.ones((len(Noise_levels),epochs+1))*-1
 df_epoch = pd.DataFrame (All_training_losses)
@@ -53,14 +54,15 @@ Experiment_nr=0
 
 for nl in range(len(Noise_levels)):
 
+    Sigmoid=torch.nn.Sigmoid().to(device)
     Unet=UNet(channels=1).to(device)
     optimizer = optim.SGD(Unet.parameters(), lr=0.001, momentum=0.9)
 
     noise_amplitude=Noise_levels[nl]
     All_training_losses[Experiment_nr,0]=noise_amplitude
 
-    for epoch in range(epochs):
-
+    for epoch in tqdm(range(epochs)):
+		
         running_loss=0.0
         batch=0
 
@@ -78,9 +80,11 @@ for nl in range(len(Noise_levels)):
                 inputs=np.clip(inputs,0.0,1.0).type(torch.float)
                 inputs=inputs.to(device)
                 outputs = Unet(inputs)
+                if Loss_function=='Original':
+                    loss = torchvision.ops.sigmoid_focal_loss(outputs, labels,alpha=alpha,gamma=gamma,reduction = 'mean')
+                else:
+                    loss = sigmoid_focal_loss_modified(outputs, labels,alpha=alpha,gamma=gamma,reduction = 'mean',epsilon_scalar=epsilon)
 
-                #loss = torchvision.ops.sigmoid_focal_loss(outputs, labels,alpha=alpha,gamma=gamma,reduction = 'mean')
-                loss= sigmoid_focal_loss_revised(outputs, labels,alpha=alpha,gamma=gamma,reduction = 'mean',epsilon_scalar=1e-3)
                 loss.backward()
                 optimizer.step()
                 running_loss += loss.item()
