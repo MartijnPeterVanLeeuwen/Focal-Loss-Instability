@@ -4,7 +4,7 @@ import torch
 from torchinfo import summary
 
 class CNN(nn.Module):
-    def __init__(self,no_classes=1):
+    def __init__(self,input_size,no_classes=1):
         super().__init__()
         self.channels=channels
         Conv_output_size=int((((input_size-4)/2)-4)/2)
