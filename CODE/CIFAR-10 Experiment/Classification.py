@@ -5,6 +5,7 @@ from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 from timm import create_model
 import time
+from tqdm import tqdm
 import torchvision
 import os
 import pandas as pd
@@ -14,14 +15,11 @@ from PIL import Image
 import numpy as np
 import sys
 current_dir = os.path.dirname(__file__)
-parent_dir = os.path.abspath(os.path.join(current_dir, "..", ".."))
+parent_dir = os.path.abspath(os.path.join(current_dir, ".."))
 sys.path.append(parent_dir)
 
 from Stabilized_Focal_loss import sigmoid_focal_loss_modified
 from Models.CNN import *
-
-from Revised_Focal_loss import *
-from Simple_CNN import *
 
 class CustomImageDataset(Dataset):
     def __init__(self, img_dir, transform=None,foreground=[0,1,8,9],background=[2,3,4,5,6,7]):
@@ -34,6 +32,7 @@ class CustomImageDataset(Dataset):
         return len(self.image_files)
 
     def __getitem__(self, idx):
+
         img_path = os.path.join(self.img_dir, self.image_files[idx])
         im = Image.open(img_path)
         label = int(self.image_files[idx].split("_")[-1][:-4])
@@ -49,34 +48,41 @@ class CustomImageDataset(Dataset):
 
 
 
-train_dir = ''
-result_dir=''
+train_dir = 'C://Users//mleeuwen//OneDrive - Tilburg University//Desktop//CIFAR//Images'
+result_dir='C://Users//mleeuwen//OneDrive - Tilburg University//Desktop//CIFAR//Results'
 
 if os.path.isdir(result_dir)==False:
     os.mkdir(result_dir)
 
 batch_size = 128
-num_workers = 8
 num_epochs = 1000
 Device='cpu' #change to cuda:0 and select gpu
+Model_type='CNN'
 
 device = torch.device(Device)
+
 # Transforms (ViT expects 224x224 input)
-train_transforms = transforms.Compose([
-    transforms.ToTensor(),
-    transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5)),
-])
+
+if Model_type=='CNN':
+     train_transforms = transforms.Compose([
+         transforms.ToTensor(),
+         transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5)),
+     ])
+else: 
+    train_transforms = transforms.Compose([
+         transforms.RandomResizedCrop(224),
+         transforms.ToTensor(),
+         transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5)),
+     ])
 
 # Data Loaders
 train_dataset=CustomImageDataset(train_dir, transform=train_transforms)
-train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers, pin_memory=True)
+train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 
-Model_type='CNN'
 if Model_type=="CNN":
-    model=CNN(1,32,no_classes=1).to(device)
+    model=CNN(3,32,no_classes=1).to(device)
 else:
    model = create_model('vit_base_patch16_224', pretrained=False, num_classes=1).to(device)
-
 
 # Loss, Optimizer, Scheduler
 optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
@@ -86,8 +92,9 @@ accuracy=np.ones(num_epochs)*-1
 Loss_function='Original'
 
 print('start training')
+
 # Training Loop
-for epoch in range(num_epochs):
+for epoch in tqdm(range(num_epochs)):
     print('epoch %s'%epoch)
     model.train()
     running_loss = 0.0
