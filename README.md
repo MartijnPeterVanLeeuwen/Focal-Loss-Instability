@@ -1,4 +1,4 @@
-# Focal-Loss-Instability
+# A Note on the Stability of the Focal loss
 
 This repository provides additional information regarding our paper on the stability of the Focal loss. The Focal loss is a popular loss function designed to deal with class-imbalanced datasets, and is parameterized by a focusing parameter $\gamma$ that determines the degree to which easy examples are downscaled. In our [paper](), we addressed a focal loss instability that can occur whenever this focusing parameter $\gamma$ is set to a value between 0 and 1 due to a singularity in the derivative of the Focal loss.
 
