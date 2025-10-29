@@ -16,13 +16,11 @@ sys.path.append(parent_dir)
 from Stabilized_Focal_loss import sigmoid_focal_loss_modified
 from Models.CNN import *
 
-Path_to_MNIST_train='/DATA/MNIST/train'
-Path_to_MNIST_train='C://Users//mleeuwen//OneDrive - Tilburg University//Desktop//MNIS//DATA'
-Path_to_Main_results='RESULTS'
-Path_to_Main_results='C://Users//mleeuwen//OneDrive - Tilburg University//Desktop//MNIS//RES'
+Path_to_MNIST_train='.//MNIST//DATA'
+Path_to_Main_results='.//MNIST//RES'
 
 mnist_trainset=datasets.MNIST(root=Path_to_MNIST_train,
-                train=True,download=False,transform=torchvision.transforms.ToTensor())#Set download to True if you want to download the MNIST dataset
+                train=True,download=False,transform=torchvision.transforms.ToTensor())#Set "download" to True if you want to download the MNIST dataset
 
 epsilon=1e-3
 batch_size=64

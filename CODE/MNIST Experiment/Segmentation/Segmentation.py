@@ -21,10 +21,8 @@ Device='cpu'
 device = torch.device(Device)
 Patch_size=28
 
-Path_to_MNIST_train='/DATA/MNIST/train'
-Path_to_MNIST_train='C://Users//mleeuwen//OneDrive - Tilburg University//Desktop//MNIS//DATA'
-Path_to_Main_results='RESULTS'
-Path_to_Main_results='C://Users//mleeuwen//OneDrive - Tilburg University//Desktop//MNIS//RES'
+Path_to_MNIST_train='//MNIST//DATA'
+Path_to_Main_results='.//MNIST//RES'
 
 if os.path.isdir(Path_to_Main_results)==False:
     os.makedirs(Path_to_Main_results)
@@ -32,6 +30,7 @@ if os.path.isdir(Path_to_Main_results)==False:
 transforms = torchvision.transforms.Compose([
     torchvision.transforms.ToTensor(),
     ])
+
 mnist_trainset=datasets.MNIST(root=Path_to_MNIST_train,train=True,download=False,transform=transforms)
 
 batch_size=64

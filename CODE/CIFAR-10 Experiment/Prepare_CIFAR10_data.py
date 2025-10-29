@@ -41,7 +41,7 @@ def construct_image(data,label,storage_dir,batch):
     return None
 
 # CIFAR data is downloaded from https://www.cs.toronto.edu/~kriz/cifar.html
-Path_to_data_storage='C://Users//mleeuwen//OneDrive - Tilburg University//Desktop//CIFAR//'    #Path to directory where the .tar.gz file is stored
+Path_to_data_storage='.//Desktop//CIFAR//'    #Path to directory where the .tar.gz file is stored
 
 path_to_cifar10=os.path.join(Path_to_data_storage,'cifar-10-python.tar.gz')
 Path_to_compressed_data=os.path.join(Path_to_data_storage,'DATA')

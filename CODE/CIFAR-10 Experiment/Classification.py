@@ -48,8 +48,8 @@ class CustomImageDataset(Dataset):
 
 
 
-train_dir = 'C://Users//mleeuwen//OneDrive - Tilburg University//Desktop//CIFAR//Images'
-result_dir='C://Users//mleeuwen//OneDrive - Tilburg University//Desktop//CIFAR//Results'
+train_dir = './/CIFAR//Images' #Change to directory containing the CIFAR 10 data 
+result_dir='./CIFAR//Results'  #Change to directory where the results should be stored
 
 if os.path.isdir(result_dir)==False:
     os.mkdir(result_dir)
