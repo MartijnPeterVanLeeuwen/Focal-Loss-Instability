@@ -1,8 +1,9 @@
+#Modifications to the original loss are indicated with "#Modification"
+
 import torch
 import torch.nn.functional as F
 
 from torchvision.utils import _log_api_usage_once   #Modification 
-
 
 def sigmoid_focal_loss_modified(
     inputs: torch.Tensor,
