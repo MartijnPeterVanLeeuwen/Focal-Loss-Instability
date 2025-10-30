@@ -1,6 +1,6 @@
 # A Note on the Stability of the Focal Loss
 
-This repository provides additional information regarding our paper on the stability of the Focal loss. The Focal loss is a popular loss function designed to deal with class-imbalanced datasets, and is parameterized by a focusing parameter $\gamma$ that determines the degree to which easy examples are downscaled. In our [paper](), we addressed a focal loss instability that can occur whenever this focusing parameter $\gamma$ is set to a value between 0 and 1 due to a singularity in the derivative of the Focal loss.
+This repository provides additional information regarding our paper on the stability of the Focal loss. The Focal loss is a popular loss function designed to deal with class-imbalanced datasets, and is parameterized by a focusing parameter $\gamma$ that determines the degree to which easy examples are downscaled. In our [paper](https://openreview.net/forum?id=eCYActnGbu), we addressed a focal loss instability that can occur whenever this focusing parameter $\gamma$ is set to a value between 0 and 1 due to a singularity in the derivative of the Focal loss.
 
 To prove that this instability is not only a theoretical issue, we have demonstrated that the instability can be detected in a two-binary classification and one segmentation experiment. The code for these experiments is included in this repository, along with the generated results, which can be found [here](https://github.com/MartijnPeterVanLeeuwen/Focal-Loss-Instability/tree/main/Experiment_Results).
 
