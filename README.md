@@ -10,7 +10,7 @@ In our paper, we have used a smoothing constant with a value of 1e-3, where we h
 
 We have also provided some code to demonstrate that "NaN" values can be detected when calculating the gradient of the Focal loss, when no smoothing constant is used. This code can be found [here](https://github.com/MartijnPeterVanLeeuwen/Focal-Loss-Instability/blob/main/CODE/Gradient_analysis/Numerical_Computation_Gradient.py)
 
-If you make use of this focal loss stabilization method, please cite our paper! 
+If you make use of this focal loss stabilization method, please cite our [paper](https://openreview.net/forum?id=eCYActnGbu)! 
 
 ```sh
 @article{
