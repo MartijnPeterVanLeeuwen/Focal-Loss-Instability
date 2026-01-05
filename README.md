@@ -9,3 +9,18 @@ In this paper, we also provide a solution to the instability by adding a smoothi
 In our paper, we have used a smoothing constant with a value of 1e-3, where we have found that it stabilizes model training for $\gamma$ values as small as 0.1. However, it could be possible that $\gamma$ values smaller than 0.1 still lead to instabilities with this smoothing constant value. If instability is still encountered, the value of the smoothing constant should be increased.
 
 We have also provided some code to demonstrate that "NaN" values can be detected when calculating the gradient of the Focal loss, when no smoothing constant is used. This code can be found [here](https://github.com/MartijnPeterVanLeeuwen/Focal-Loss-Instability/blob/main/CODE/Gradient_analysis/Numerical_Computation_Gradient.py)
+
+If you make use of this focal loss stabilization method, please cite our paper! 
+
+```sh
+@article{
+leeuwen2025a,
+title={A Note On The Stability Of The Focal Loss},
+author={Martijn P. van Leeuwen and Koen V. Haak and Gorkem Saygili and Eric O. Postma and L.L. Sharon Ong},
+journal={Transactions on Machine Learning Research},
+issn={2835-8856},
+year={2025},
+url={https://openreview.net/forum?id=eCYActnGbu},
+note={}
+}
+```
